@@ -11,5 +11,5 @@
 / {
 	model = "Qualcomm Technologies, Inc. xiaomi umi";
 	compatible = "qcom,kona-mtp", "qcom,kona", "qcom,mtp";
-	qcom,board-id = <43 0>;
+	qcom,board-id = <35 0>;
 };
