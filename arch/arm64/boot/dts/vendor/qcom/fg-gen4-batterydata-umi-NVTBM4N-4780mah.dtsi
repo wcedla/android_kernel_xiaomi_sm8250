@@ -3,12 +3,14 @@ qcom,xiaomi_j2nvtbm4n_4780mah_averaged_masterslave_sept12th2019 {
 	/* #4187401_Xiaomi_J2NVTBM4N_4780mAh_averaged_MasterSlave_Sept12th2019*/
 	qcom,max-voltage-uv = <4480000>;
 	qcom,fastchg-current-ma = <6000>;
-	qcom,jeita-fcc-ranges = <0  50  936000
+	qcom,jeita-fcc-ranges = <(-100)  0   0
+				1  50  936000
 				51  100  1872000
 				101 150  2808000
 				151 450  6000000
 				451 580  3276000>;
-	qcom,jeita-fv-ranges = <0   50  4400000
+	qcom,jeita-fv-ranges = <(-100)  0   4400000
+				1   50  4400000
 				51  100  4400000
 				101 150  4400000
 				151 450  4480000

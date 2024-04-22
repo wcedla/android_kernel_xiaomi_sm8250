@@ -248,6 +248,21 @@
 				input-enable;
 			};
 		};
+		bq2597x_slave_int_default: bq2597x_slave_int_default {
+			/* active state */
+			mux {
+				/* GPIO 84 is used for bq25970 slave ic interrupt usage */
+				pins = "gpio84";
+				function = "gpio";
+			};
+
+			config {
+				pins = "gpio84";
+				drive-strength = <2>;
+				bias-pull-down;
+				output-low;
+			};
+		};
 	};
 
 	ln8282_enable_active: ln8282_enable_active {
