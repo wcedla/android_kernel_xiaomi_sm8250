@@ -3566,6 +3566,8 @@ int dsi_panel_set_disp_param(struct dsi_panel *panel, u32 param)
 	bool fod_lhbm_low_brightness_allow = true;
 	u32 fp_status = 0;
 
+	pr_debug("dsi_panel_set_disp_param:%u",param);
+
 	if (!panel) {
 		pr_err("invalid params\n");
 		return -EINVAL;
