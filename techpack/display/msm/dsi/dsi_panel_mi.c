@@ -1603,6 +1603,129 @@ unlock:
 	return rc;
 }
 
+ssize_t dsi_panel_print_gamma_param(struct dsi_panel *panel,
+				char *buf)
+{
+	int i = 0;
+	ssize_t count = 0;
+	struct gamma_cfg *gamma_cfg;
+	u8 *buffer = NULL;
+
+	if (!panel) {
+		pr_err("invalid params\n");
+		return -EINVAL;
+	}
+
+	if (!panel->mi_cfg.gamma_update_flag) {
+		pr_err("gamma_update_flag is not configed\n");
+		return -EINVAL;
+	}
+
+	gamma_cfg = &panel->mi_cfg.gamma_cfg;
+	if (!gamma_cfg->read_done) {
+		pr_info("Gamma parameter not read at POWER ON sequence\n");
+		return -EAGAIN;
+	}
+
+	mutex_lock(&panel->panel_lock);
+
+	count += snprintf(buf + count, PAGE_SIZE - count,
+				"Gamma 0xC8 OPT Read %d Parameter (60Hz)\n",
+				sizeof(gamma_cfg->otp_read_c8));
+	buffer = gamma_cfg->otp_read_c8;
+	for (i = 1; i <= sizeof(gamma_cfg->otp_read_c8); i++) {
+		if (i%8 && (i != sizeof(gamma_cfg->otp_read_c8))) {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X,",
+				gamma_cfg->otp_read_c8[i - 1]);
+		} else {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X\n",
+				gamma_cfg->otp_read_c8[i - 1]);
+		}
+	}
+
+	count += snprintf(buf + count, PAGE_SIZE - count,
+				"Gamma 0xC9 OPT Read %d Parameter (60Hz)\n",
+				sizeof(gamma_cfg->otp_read_c9));
+	buffer = gamma_cfg->otp_read_c9;
+	for (i = 1; i <= sizeof(gamma_cfg->otp_read_c9); i++) {
+		if (i%8 && (i != sizeof(gamma_cfg->otp_read_c9))) {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X,",
+				gamma_cfg->otp_read_c9[i - 1]);
+		} else {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X\n",
+				gamma_cfg->otp_read_c9[i - 1]);
+		}
+	}
+
+	count += snprintf(buf + count, PAGE_SIZE - count,
+				"Gamma 0xB3 OPT Read %d Parameter (60Hz)\n",
+				sizeof(gamma_cfg->otp_read_b3));
+	buffer = gamma_cfg->otp_read_b3;
+	for (i = 1; i <= sizeof(gamma_cfg->otp_read_b3); i++) {
+		if (i%8 && (i != sizeof(gamma_cfg->otp_read_b3))) {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X,",
+				gamma_cfg->otp_read_b3[i - 1]);
+		} else {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X\n",
+				gamma_cfg->otp_read_b3[i - 1]);
+		}
+	}
+
+	count += snprintf(buf + count, PAGE_SIZE - count,
+				"Gamma Flash 0xC8 Read %d Parameter (90Hz)\n",
+				sizeof(gamma_cfg->flash_read_c8));
+	buffer = gamma_cfg->flash_read_c8;
+	for (i = 1; i <= sizeof(gamma_cfg->flash_read_c8); i++) {
+		if (i%8 && (i != sizeof(gamma_cfg->flash_read_c8))) {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X,",
+				gamma_cfg->flash_read_c8[i - 1]);
+		} else {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X\n",
+				gamma_cfg->flash_read_c8[i - 1]);
+		}
+	}
+
+	count += snprintf(buf + count, PAGE_SIZE - count,
+				"Gamma Flash 0xC9 Read %d Parameter (90Hz)\n",
+				sizeof(gamma_cfg->flash_read_c9));
+	buffer = gamma_cfg->flash_read_c9;
+	for (i = 1; i <= sizeof(gamma_cfg->flash_read_c9); i++) {
+		if (i%8 && (i != sizeof(gamma_cfg->flash_read_c9))) {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X,",
+				gamma_cfg->flash_read_c9[i - 1]);
+		} else {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X\n",
+				gamma_cfg->flash_read_c9[i - 1]);
+		}
+	}
+
+	count += snprintf(buf + count, PAGE_SIZE - count,
+				"Gamma Flash 0xB3 Read %d Parameter (90Hz)\n",
+				sizeof(gamma_cfg->flash_read_b3));
+	buffer = gamma_cfg->flash_read_b3;
+	for (i = 1; i <= sizeof(gamma_cfg->flash_read_b3); i++) {
+		if (i%8 && (i != sizeof(gamma_cfg->flash_read_b3))) {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X,",
+				gamma_cfg->flash_read_b3[i - 1]);
+		} else {
+			count += snprintf(buf + count, PAGE_SIZE - count, "0x%02X\n",
+				gamma_cfg->flash_read_b3[i - 1]);
+		}
+	}
+
+	count += snprintf(buf + count, PAGE_SIZE - count,
+				"Gamma Flash Read Checksum Decimal(%d) (90Hz)\n",
+				((gamma_cfg->flash_read_checksum[0] << 8) +
+				gamma_cfg->flash_read_checksum[1]));
+	count += snprintf(buf + count, PAGE_SIZE - count,
+				"Gamma Flash Read 450 Parameter SUM(%d) (90Hz)\n",
+				gamma_cfg->gamma_checksum);
+
+	mutex_unlock(&panel->panel_lock);
+
+	return count;
+}
+
 int dsi_panel_update_gamma_param(struct dsi_panel *panel)
 {
 	struct dsi_display *display;
@@ -3403,6 +3526,27 @@ bool dsi_panel_is_need_tx_cmd(u32 param)
 	}else
 		return true;
 }
+
+ssize_t dsi_panel_get_doze_brightness(struct dsi_panel *panel, char *buf)
+{
+	ssize_t count = 0;
+	struct dsi_panel_mi_cfg *mi_cfg;
+
+	if (!panel) {
+		pr_err("invalid params\n");
+		return -EAGAIN;
+	}
+
+	mutex_lock(&panel->panel_lock);
+
+	mi_cfg = &panel->mi_cfg;
+	count = snprintf(buf, PAGE_SIZE, "%d\n", mi_cfg->doze_brightness_state);
+
+	mutex_unlock(&panel->panel_lock);
+
+	return count;
+}
+
 
 int dsi_panel_set_disp_param(struct dsi_panel *panel, u32 param)
 {
